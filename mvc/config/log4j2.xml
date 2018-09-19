@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF" monitorInterval="1800">
+
+    <property name="LOGGER_HOME">${web:rootDir}/logger</property>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+
+        <RollingFile name="RollingFile" fileName="${sys:catalina.home}logger/app.log"
+                     filePattern="${sys:catalina.home}/logger/wm/log-%d{yyyy-MM-dd:HH}.log">
+            <PatternLayout>
+                <!--<Pattern>%d %p %c{1.} [%t] %m%n</Pattern>-->
+                <pattern>%5p [%t] %d{yyyy-MM-dd HH:mm:ss} (%F:%L) %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <SizeBasedTriggeringPolicy size="200MB"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+
+        <Logger name="org.springframework" level="debug" additivity="true">
+            <AppenderRef ref="Console" />
+        </Logger>
+
+        <Logger name="org.mybatis" level="debug" additivity="true">
+            <AppenderRef ref="Console" />
+        </Logger>
+
+        <Logger name="com.xxx.repository" level="debug" additivity="true">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="com.xxx.handler" level="debug" additivity="true">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="com.xxx.service" level="debug" additivity="true">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Root level="debug">
+            <AppenderRef ref="RollingFile" />
+            <AppenderRef ref="Console" />
+        </Root>
+    </Loggers>
+</Configuration>

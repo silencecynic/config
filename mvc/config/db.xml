@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx = "http://www.springframework.org/schema/tx"
+       xmlns:aop = "http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:profile/profile.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="beanName" value="hikariDataSource"/>
+    </bean>
+
+    <bean id="hikariDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="poolName" value="Hikari"/>
+        <property name="driverClassName" value="${db.driver}"/>
+        <property name="jdbcUrl" value="${db.url}"/>
+        <property name="username" value="${db.user}"/>
+        <property name="password" value="${db.password}"/>
+        <property name="autoCommit" value="true"/>
+        <property name="readOnly" value="false"/>
+        <property name="transactionIsolation" value="TRANSACTION_READ_COMMITTED"/>
+        <property name="maxLifetime" value="1800000"/>
+        <property name="maximumPoolSize" value="15"/>
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="cachePrepStmts">false</prop>
+                <prop key="prepStmtCacheSize">250</prop>
+                <prop key="prepStmtCacheSqlLimit">2048</prop>
+                <prop key="useServerPrepStmts">true</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="hikariDataSource"/>
+    </bean>
+
+    <tx:advice id="transactionInterceptor" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*" isolation="READ_COMMITTED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <tx:annotation-driven mode="aspectj" transaction-manager="transactionManager"/>
+
+    <aop:aspectj-autoproxy/>
+
+    <aop:config proxy-target-class="true">
+        <aop:advisor pointcut="execution(* com.xx.service.impl.*Service*.*(..))" advice-ref="transactionInterceptor"/>
+    </aop:config>
+</beans>
